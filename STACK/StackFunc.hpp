@@ -59,6 +59,8 @@ StackErr_t StackCtor(stk_t<stackElem_T> *stk, ssize_t capacity)
 template <typename stackElem_T>
 StackErr_t StackDtor(stk_t<stackElem_T> *stk)
 {
+    if (stk == NULL) return STK_SUCCESS;
+
     ON_DEBUG( 
         if (IS_BAD_PTR(stk)) { LOG(ERROR, "STK_BAD_STK_PTR"); return STK_ERROR; }
         if (IS_BAD_PTR(stk->data)) { LOG(ERROR, "STK_BAD_DATA_PTR"); return STK_ERROR; }

@@ -25,31 +25,7 @@ htErr_t htCtor(ht_t *hash_table)
     for (int i = 0; i < HT_SIZE; ++i)
     {
         hash_table->table[i].is_used = 0;
-        
-        stk_t<const char*> *stk = (stk_t<const char*>*)calloc(1, sizeof(stk_t<const char*>));
-        if (IS_BAD_PTR(stk))
-        {
-            for (int j = 0; j < i; ++j)
-            {
-                STACK_DTOR(hash_table->table[j].stk);
-                free(hash_table->table[j].stk);
-            }
-            free(hash_table->table);
-            return HT_ERROR;
-        }
-    
-        STACK_CTOR(stk, INIT_NUM_COL);
-        
-        ON_DEBUG(
-            if (stk->error != STK_NO_ERRORS)
-            {
-                LOG(ERROR, "Stack construction failed");
-                free(stk);
-                return HT_ERROR;
-            }
-        )
-        
-        hash_table->table[i].stk = stk;
+        hash_table->table[i].stk = NULL;
     }
     
     ON_DEBUG( LOG(INFO, "Hash-table \"%s\" created", hash_table->id.name); )
@@ -116,7 +92,33 @@ htErr_t htInsert(ht_t *hash_table, const char *item)
 
     hash_t hash_item = GetHash(item) & (HT_SIZE - 1);
 
-    hash_table->table[hash_item].is_used = 1;
+    if (hash_table->table[hash_item].is_used == 0)
+    {
+        hash_table->table[hash_item].is_used = 1;
+        stk_t<const char*> *stk = (stk_t<const char*>*)calloc(1, sizeof(stk_t<const char*>));
+        if (IS_BAD_PTR(stk))
+        {
+            for (int i = 0; i < HT_SIZE; ++i)
+            {
+                STACK_DTOR(hash_table->table[i].stk);
+                if (hash_table->table[i].stk != NULL) { free(hash_table->table[i].stk); }
+            }
+            free(hash_table->table);
+            return HT_ERROR;
+        }
+    
+        STACK_CTOR(stk, INIT_NUM_COL);
+        ON_DEBUG(
+            if (stk->error != STK_NO_ERRORS)
+            {
+                LOG(ERROR, "Stack construction failed");
+                free(stk);
+                return HT_ERROR;
+            }
+        )
+        hash_table->table[hash_item].stk = stk;
+    }
+
     StackPush(hash_table->table[hash_item].stk, item);
 
     return HT_SUCCESS;
@@ -161,9 +163,12 @@ htErr_t htRemove(ht_t *hash_table, const char *item)
 
     STACK_DTOR(&stk_ret);
 
-    if (hash_table->table[hash_item].stk->size == 0)
+    if (hash_table->table[hash_item].stk->size == 2)
     {
         hash_table->table[hash_item].is_used = 0;
+        STACK_DTOR(hash_table->table[hash_item].stk);
+        hash_table->table[hash_item].stk = NULL;
     }
+
     return found ? HT_SUCCESS : HT_ERROR;
 }

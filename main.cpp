@@ -12,9 +12,9 @@ int main()
     htInsert(hash_table_1, "y");
     htInsert(hash_table_1, "z");
 
-    htRemove(hash_table_1, "x");
+    htRemove(hash_table_1, "z");
 
-    printf("%p\n", htFind(hash_table_1, "x"));
+    printf("%p\n", htFind(hash_table_1, "z"));
 
     HT_DTOR(hash_table_1);
     LogFileCloser();
