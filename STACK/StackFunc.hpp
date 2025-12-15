@@ -57,6 +57,33 @@ StackErr_t StackCtor(stk_t<stackElem_T> *stk, ssize_t capacity)
 
 
 template <typename stackElem_T>
+StackErr_t StackDtor(stk_t<stackElem_T> *stk)
+{
+    ON_DEBUG( 
+        if (IS_BAD_PTR(stk)) { LOG(ERROR, "STK_BAD_STK_PTR"); return STK_ERROR; }
+        if (IS_BAD_PTR(stk->data)) { LOG(ERROR, "STK_BAD_DATA_PTR"); return STK_ERROR; }
+    )
+
+    free(stk->data);
+    stk->size = -1;
+    stk->capacity = -1;
+    ON_DEBUG(
+        stk->error = STK_DESTROYED;
+        stk->hash = 0;
+    )
+    
+    ON_DEBUG( LOG(INFO, "Stack \"%s\" destroed", stk->id.name); )
+    
+    stk->id.name = NULL;
+    stk->id.file = NULL;
+    stk->id.func = NULL;
+    stk->id.line = 0;
+
+    return STK_SUCCESS;
+}
+
+
+template <typename stackElem_T>
 StackErr_t StackPush(stk_t<stackElem_T> *stk, const stackElem_T value)
 {
     ON_DEBUG( if (IS_BAD_PTR(stk)) { LOG(ERROR, "STK_BAD_STK_PTR"); return STK_ERROR; } )
@@ -186,33 +213,6 @@ StackErr_t StackRevRealloc(stk_t<stackElem_T> *stk)
         if(stk->hash == 0) { stk->error |= STK_WRONG_HASH; LOG(ERROR, "STK_WRONG_HASH"); return STK_ERROR; }
         LOG(INFO, "Hash updated");
     )
-
-    return STK_SUCCESS;
-}
-
-
-template <typename stackElem_T>
-StackErr_t StackDtor(stk_t<stackElem_T> *stk)
-{
-    ON_DEBUG( 
-        if (IS_BAD_PTR(stk)) { LOG(ERROR, "STK_BAD_STK_PTR"); return STK_ERROR; }
-        if (IS_BAD_PTR(stk->data)) { LOG(ERROR, "STK_BAD_DATA_PTR"); return STK_ERROR; }
-    )
-
-    free(stk->data);
-    stk->size = -1;
-    stk->capacity = -1;
-    ON_DEBUG(
-        stk->error = STK_DESTROYED;
-        stk->hash = 0;
-    )
-    
-    ON_DEBUG( LOG(INFO, "Stack \"%s\" destroed", stk->id.name); )
-    
-    stk->id.name = NULL;
-    stk->id.file = NULL;
-    stk->id.func = NULL;
-    stk->id.line = 0;
 
     return STK_SUCCESS;
 }
