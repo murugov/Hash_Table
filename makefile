@@ -3,16 +3,16 @@ FLAGS = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -W
 COMMON_INCLUDES		= -I./COMMON/headers
 CONFIG_INCLUDES 	= -I./CONFIG
 STK_INCLUDES		= -I./STACK
-HT_INCLUDES 		= -I./HASH_TABLE/headers
+HT_INCLUDES 		= -I./HASH_TABLE
 
 COMMON_FILES = COMMON/GetHash.cpp COMMON/IsBadPtr.cpp COMMON/logger.cpp
-HT_FILES	 = HASH_TABLE/HashTableFunc.cpp
+EXMPLE_FILES = example_cmp_for_ht.cpp
 
 all: help
 
-ht: main.cpp $(COMMON_FILES)
+ht: main.cpp $(COMMON_FILES) $(EXMPLE_FILES)
 	@echo "-----------------------------------------------------------------------------------------"
-	g++ -o ht_program $(FLAGS) main.cpp $(COMMON_INCLUDES) $(CONFIG_INCLUDES) $(STK_INCLUDES) $(HT_INCLUDES) $(COMMON_FILES) $(HT_FILES)
+	g++ -o ht_program $(FLAGS) main.cpp $(COMMON_INCLUDES) $(CONFIG_INCLUDES) $(STK_INCLUDES) $(HT_INCLUDES) $(COMMON_FILES) $(EXMPLE_FILES)
 	@echo "-----------------------------------------------------------------------------------------"
 
 run-ht: ht
