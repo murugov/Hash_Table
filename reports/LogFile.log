@@ -1,25 +1,27 @@
-[2025-12-17 03:19:18] DEBUG Created id for hash-table "hash_table_1"
-[2025-12-17 03:19:18] INFO  Hash-table "hash_table_1" created
-[2025-12-17 03:19:18] DEBUG Created id for stack "stk"
-[2025-12-17 03:19:18] INFO  Hash updated
-[2025-12-17 03:19:18] INFO  Stack "stk" is created
-[2025-12-17 03:19:18] DEBUG PUSH 0x1023c3880 in "stk"
-[2025-12-17 03:19:18] INFO  Hash is updated
-[2025-12-17 03:19:18] DEBUG Created id for stack "stk"
-[2025-12-17 03:19:18] INFO  Hash updated
-[2025-12-17 03:19:18] INFO  Stack "stk" is created
-[2025-12-17 03:19:18] DEBUG PUSH 0x1023c38a0 in "stk"
-[2025-12-17 03:19:18] INFO  Hash is updated
-[2025-12-17 03:19:18] DEBUG Created id for stack "stk"
-[2025-12-17 03:19:18] INFO  Hash updated
-[2025-12-17 03:19:18] INFO  Stack "stk" is created
-[2025-12-17 03:19:18] DEBUG PUSH 0x1023c38c0 in "stk"
-[2025-12-17 03:19:18] INFO  Hash is updated
-[2025-12-17 03:19:18] DEBUG Created id for stack "&stk_ret"
-[2025-12-17 03:19:18] INFO  Hash updated
-[2025-12-17 03:19:18] INFO  Stack "&stk_ret" is created
-[2025-12-17 03:19:18] INFO  Stack "&stk_ret" is destroyed
-[2025-12-17 03:19:18] INFO  Stack "stk" is destroyed
-[2025-12-17 03:19:18] INFO  Stack "stk" is destroyed
-[2025-12-17 03:19:18] INFO  Stack "stk" is destroyed
-[2025-12-17 03:19:18] INFO  Hash-table "hash_table_1" destroed
+[2025-12-17 03:42:54] DEBUG Created id for hash-table "hash_table_1"
+[2025-12-17 03:42:54] INFO  Hash-table "hash_table_1" created
+[2025-12-17 03:42:54] DEBUG Created id for stack "stk"
+[2025-12-17 03:42:54] INFO  Hash updated
+[2025-12-17 03:42:54] INFO  Stack "stk" is created
+[2025-12-17 03:42:54] DEBUG PUSH 0x1023237c0 in "stk"
+[2025-12-17 03:42:54] INFO  Hash is updated
+[2025-12-17 03:42:54] DEBUG Created id for stack "stk"
+[2025-12-17 03:42:54] INFO  Hash updated
+[2025-12-17 03:42:54] INFO  Stack "stk" is created
+[2025-12-17 03:42:54] DEBUG PUSH 0x1023237e0 in "stk"
+[2025-12-17 03:42:54] INFO  Hash is updated
+[2025-12-17 03:42:54] DEBUG Created id for stack "stk"
+[2025-12-17 03:42:54] INFO  Hash updated
+[2025-12-17 03:42:54] INFO  Stack "stk" is created
+[2025-12-17 03:42:54] DEBUG PUSH 0x102323800 in "stk"
+[2025-12-17 03:42:54] INFO  Hash is updated
+[2025-12-17 03:42:54] DEBUG Created id for stack "&stk_ret"
+[2025-12-17 03:42:54] INFO  Hash updated
+[2025-12-17 03:42:54] INFO  Stack "&stk_ret" is created
+[2025-12-17 03:42:54] INFO  Hash is updated
+[2025-12-17 03:42:54] DEBUG POP 0x102323800 from "stk"
+[2025-12-17 03:42:54] INFO  Stack "&stk_ret" is destroyed
+[2025-12-17 03:42:54] INFO  Stack "stk" is destroyed
+[2025-12-17 03:42:54] INFO  Stack "stk" is destroyed
+[2025-12-17 03:42:54] INFO  Stack "stk" is destroyed
+[2025-12-17 03:42:54] INFO  Hash-table "hash_table_1" destroed
