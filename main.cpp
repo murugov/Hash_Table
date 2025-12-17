@@ -12,6 +12,8 @@ int main()
     htInsert(hash_table_1, "y");
     htInsert(hash_table_1, "z");
 
+    printf("%p\n", htFind(hash_table_1, "a"));
+
     htRemove(hash_table_1, "z");
 
     printf("%p\n", htFind(hash_table_1, "z"));
