@@ -77,11 +77,13 @@ htErr_t htDtor(ht_t<htElem_T> *hash_table)
 
 
 template <typename htElem_T>
-const char *htFind(ht_t<htElem_T> *hash_table, const char *target, int (*hashTableComparator)(const void*, const char*))
+htElem_T htFind(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElemToStr)(const void*))
 {
-    ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(target)) { LOG(ERROR, "Bad pointer in htFind"); return NULL; } )
+    ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(item)) { LOG(ERROR, "Bad pointer in htFind"); return NULL; } )
 
-    hash_t hash_target = GetHash(target) & (HT_SIZE - 1);
+    const char *item_str = htElemToStr(item);
+
+    hash_t hash_target = GetHash(item_str) & (HT_SIZE - 1);
 
     if (hash_table->table[hash_target].is_used == 0) { return NULL; }
     
@@ -90,8 +92,8 @@ const char *htFind(ht_t<htElem_T> *hash_table, const char *target, int (*hashTab
 
     for (ssize_t i = 0; i < stk->size; ++i)
     {
-        htElem_T current_elem = stk->data[i];
-        if (!hashTableComparator(&current_elem, target))
+        const char *current_elem = htElemToStr(stk->data[i]);
+        if (strcmp(current_elem, item_str))
         {
             return stk->data[i];
         }
@@ -102,11 +104,13 @@ const char *htFind(ht_t<htElem_T> *hash_table, const char *target, int (*hashTab
 
 
 template <typename htElem_T>
-htErr_t htInsert(ht_t<htElem_T> *hash_table, const char *item, int (*hashTableComparator)(const void*, const char*))
+htErr_t htInsert(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElemToStr)(const void*))
 {
     ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(item)) { LOG(ERROR, "Bad pointer in htInsert"); return HT_ERROR; } )
 
-    hash_t hash_item = GetHash(item) & (HT_SIZE - 1);
+    const char* item_str = htElemToStr(item);
+
+    hash_t hash_item = GetHash(item_str) & (HT_SIZE - 1);
 
     if (hash_table->table[hash_item].is_used == 0)
     {
@@ -145,23 +149,25 @@ htErr_t htInsert(ht_t<htElem_T> *hash_table, const char *item, int (*hashTableCo
 
         for (ssize_t i = 0; i < stk->size; ++i)
         {
-            htElem_T current_elem = stk->data[i];
-            if (!hashTableComparator(&current_elem, item)) { return HT_SUCCESS; }
+            const char *current_elem = htElemToStr(stk->data[i]);
+            if (!strcmp(current_elem, item_str)) { return HT_SUCCESS; }
         }
     }
 
-    StackPush(hash_table->table[hash_item].stk, item);
+    StackPush(hash_table->table[hash_item].stk, *item);
 
     return HT_SUCCESS;
 }
 
 
 template <typename htElem_T>
-htErr_t htRemove(ht_t<htElem_T> *hash_table, const char *item, int (*hashTableComparator)(const void*, const char*))
+htErr_t htRemove(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElemToStr)(const void*))
 {
     ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(item)) { LOG(ERROR, "Bad pointer in htRemove"); return HT_ERROR; } )
 
-    hash_t hash_item = GetHash(item) & (HT_SIZE - 1);
+    const char* item_str = htElemToStr(item);
+
+    hash_t hash_item = GetHash(item_str) & (HT_SIZE - 1);
 
     if (hash_table->table[hash_item].is_used == 0 || hash_table->table[hash_item].stk == NULL)
     { 
@@ -178,14 +184,15 @@ htErr_t htRemove(ht_t<htElem_T> *hash_table, const char *item, int (*hashTableCo
     }
 
     bool found = false;
-    htElem_T current_elem = NULL;
+    const htElem_T current_elem = NULL;
     stk_t<htElem_T> *stk = hash_table->table[hash_item].stk;
     
     while (stk->size > 0)
     {
         StackPop(stk, &current_elem);
-        
-        if (!hashTableComparator(&current_elem, item))
+        const char *current_elem_str = htElemToStr(current_elem);
+
+        if (strcmp(current_elem_str, item_str))
         {
             found = true;
             break;

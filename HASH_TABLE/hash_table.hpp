@@ -1,6 +1,7 @@
 #ifndef HASH_TABLE_HPP
 #define HASH_TABLE_HPP
 
+#include <string.h>
 #include "stack.hpp"
 #include "GetHash.hpp"
 
@@ -25,18 +26,18 @@ struct ht_id
 template <typename htElem_T>
 struct table_t
 {
-    int               is_used;
+    int              is_used;
     stk_t<htElem_T>* stk;
 };
 
 template <typename htElem_T>
 struct ht_t
 {
-    ht_id    id;
+    ht_id              id;
     table_t<htElem_T>* table;
 };
 
-int htStringsEqual(const void *ht_elem, const char *item);
+const char *htStringsEqual(const void *ht_elem);
 
 template <typename htElem_T>
 htErr_t htInit(ht_t<htElem_T> *hash_table, const char *name, const char *file, const char *func, int line);
@@ -48,13 +49,13 @@ template <typename htElem_T>
 htErr_t htDtor(ht_t<htElem_T> *hash_table);
 
 template <typename htElem_T>
-const char *htFind(ht_t<htElem_T> *hash_table, const char *target, int (*hashTableComparator)(const void*, const char*));
+htElem_T htFind(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElemToStr)(const void*));
 
 template <typename htElem_T>
-htErr_t htInsert(ht_t<htElem_T> *hash_table, const char *item, int (*hashTableComparator)(const void*, const char*));
+htErr_t htInsert(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElemToStr)(const void*));
 
 template <typename htElem_T>
-htErr_t htRemove(ht_t<htElem_T> *hash_table, const char *item, int (*hashTableComparator)(const void*, const char*));
+htErr_t htRemove(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElemToStr)(const void*));
 
 #define HT_CTOR(hash_table) htInit(hash_table, #hash_table, __FILE__, __func__, __LINE__); htCtor(hash_table)
 #define HT_DTOR(hash_table) htDtor(hash_table)
