@@ -1,0 +1,9 @@
+[2025-12-18 18:17:16] DEBUG Created id for hash-table "hash_table_1"
+[2025-12-18 18:17:16] INFO  Hash-table "hash_table_1" created
+[2025-12-18 18:17:16] DEBUG Created id for stack "new_stk"
+[2025-12-18 18:17:16] INFO  Hash updated
+[2025-12-18 18:17:16] INFO  Stack "new_stk" is created
+[2025-12-18 18:17:16] DEBUG PUSH 0x6020000000f0 in "new_stk"
+[2025-12-18 18:17:16] INFO  Hash is updated
+[2025-12-18 18:17:16] INFO  Stack "new_stk" is destroyed
+[2025-12-18 18:17:16] INFO  Hash-table "hash_table_1" destroyed

@@ -81,7 +81,7 @@ htElem_T htFind(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElem
 {
     ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(item)) { LOG(ERROR, "Bad pointer in htFind"); return NULL; } )
 
-    const char *item_str = htElemToStr(item);
+    const char *item_str = htElemToStr(*item);
 
     hash_t hash_target = GetHash(item_str) & (HT_SIZE - 1);
 
@@ -92,8 +92,8 @@ htElem_T htFind(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htElem
 
     for (ssize_t i = 0; i < stk->size; ++i)
     {
-        const char *current_elem = htElemToStr(stk->data[i]);
-        if (strcmp(current_elem, item_str))
+        const char *current_elem_str = htElemToStr(stk->data[i]);
+        if (strcmp(current_elem_str, item_str) == 0)
         {
             return stk->data[i];
         }
@@ -108,7 +108,7 @@ htErr_t htInsert(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htEle
 {
     ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(item)) { LOG(ERROR, "Bad pointer in htInsert"); return HT_ERROR; } )
 
-    const char* item_str = htElemToStr(item);
+    const char* item_str = htElemToStr(*item);
 
     hash_t hash_item = GetHash(item_str) & (HT_SIZE - 1);
 
@@ -150,7 +150,7 @@ htErr_t htInsert(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htEle
         for (ssize_t i = 0; i < stk->size; ++i)
         {
             const char *current_elem = htElemToStr(stk->data[i]);
-            if (!strcmp(current_elem, item_str)) { return HT_SUCCESS; }
+            if (strcmp(current_elem, item_str) == 0) { return HT_SUCCESS; }
         }
     }
 
@@ -165,7 +165,7 @@ htErr_t htRemove(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htEle
 {
     ON_DEBUG( if(IS_BAD_PTR(hash_table) || IS_BAD_PTR(item)) { LOG(ERROR, "Bad pointer in htRemove"); return HT_ERROR; } )
 
-    const char* item_str = htElemToStr(item);
+    const char* item_str = htElemToStr(*item);
 
     hash_t hash_item = GetHash(item_str) & (HT_SIZE - 1);
 
@@ -192,7 +192,7 @@ htErr_t htRemove(ht_t<htElem_T> *hash_table, htElem_T *item, const char* (*htEle
         StackPop(stk, &current_elem);
         const char *current_elem_str = htElemToStr(current_elem);
 
-        if (strcmp(current_elem_str, item_str))
+        if (strcmp(current_elem_str, item_str) == 0)
         {
             found = true;
             break;
