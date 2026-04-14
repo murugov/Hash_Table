@@ -7,7 +7,7 @@ const char* verdict_strings[] = {"INFO", "DEBUG", "WARN", "ERROR"};
 int LogFileOpener(const char* path)     // make it possible to create multiple logfiles
 {
     LogFile = fopen(path, "w");
-    if (IsBadPtr((void*)LogFile))
+    if ((void*)LogFile == NULL)
     {
         perror("Failed to open log file");
         return 1;
@@ -17,7 +17,7 @@ int LogFileOpener(const char* path)     // make it possible to create multiple l
 
 int LogFileCloser()
 {
-    if (IsBadPtr((void*)LogFile))
+    if ((void*)LogFile == NULL)
     {
         fclose(LogFile);
         return 0;

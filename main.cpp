@@ -1,26 +1,51 @@
 #include "hash_table.hpp"
 
+typedef unsigned long hash_t;               // remove
+hash_t hash_func_str(char* str);
+bool equal_func_str(char* str1, char* str2);
+
 
 int main()
 {
-    LogFileOpener(PATH_TO_LOGFILE);
+    ht_t<char*> *ht_1 = (ht_t<char*>*)calloc(HT_SIZE, sizeof(ht_t<char*>));
+    ht_init(ht_1);
 
-    ht_t<const char*> *hash_table_1 = (ht_t<const char*>*)calloc(1, sizeof(ht_t<const char*>));
-    HT_CTOR(hash_table_1);
+    char *item1 = strdup("xui");
+    char *item2 = strdup("pizda");
+    char *item3 = strdup("eblan");
 
-    const char *item = "x";
-    htInsert(hash_table_1, &item, htStringsEqual);
-    // htInsert(hash_table_1, "y", htStringsEqual);
-    // htInsert(hash_table_1, "z", htStringsEqual);
+    ht_insert(ht_1, item1, hash_func_str, equal_func_str);
+    ht_insert(ht_1, item2, hash_func_str, equal_func_str);
+    ht_insert(ht_1, item3, hash_func_str, equal_func_str);
 
-    // htRemove(hash_table_1, "z", htStringsEqual);
+    ht_remove(ht_1, item2, hash_func_str, equal_func_str);
 
-    const char *item_2 = "x";
-    printf("%p\n", htFind(hash_table_1, &item_2, htStringsEqual));
+    printf("%p\n", ht_find(ht_1, item2, hash_func_str, equal_func_str));
+    ht_free(ht_1);
+    free(ht_1);
+    free(item1);
+    free(item2);
+    free(item3);
 
-    HT_DTOR(hash_table_1);
-    free(hash_table_1);
-
-    LogFileCloser();
     return 0;
+}
+
+
+hash_t hash_func_str(char* str)
+{
+    hash_t new_hash = 0;
+    int renum = 0;
+    while (renum < 8 && *str != '\0' && !isspace(*str))
+    {
+        new_hash = (new_hash << 5) - new_hash + (hash_t)(*str++);
+        renum++;
+    }
+
+    return new_hash;
+}
+
+
+inline bool equal_func_str(char* str1, char* str2)         // inline
+{
+    return (strncmp(str1, str2, 8) == 0);
 }
