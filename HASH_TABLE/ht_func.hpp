@@ -115,6 +115,7 @@ ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_e
 }
 
 
+<<<<<<< HEAD
 // template <typename ht_elem_t>
 // void ht_dump(ht_t<ht_elem_t> *ht, void (*print_elem)(ht_elem_t))
 // {
@@ -172,4 +173,6 @@ ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_e
 //     printf("=============================\n");
 // }
 
+=======
+>>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 #endif

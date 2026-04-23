@@ -10,16 +10,28 @@ all: help
 
 ht: main.cpp $(COMMON_FILES)
 	@echo "-----------------------------------------------------------------------------------------"
+<<<<<<< HEAD
 	g++ -o out $(FLAGS) main.cpp hash_func.cpp load_words_to_vec.cpp gen_hist.cpp $(COMMON_INCLUDES) $(VEC_INCLUDES) $(HT_INCLUDES) $(COMMON_FILES)
 	@echo "-----------------------------------------------------------------------------------------"
 
 run-ht: ht
 	./out
+=======
+	g++ -o ht_program $(FLAGS) main.cpp $(COMMON_INCLUDES) $(VEC_INCLUDES) $(HT_INCLUDES) $(COMMON_FILES)
+	@echo "-----------------------------------------------------------------------------------------"
+
+run-ht: ht
+	./ht_program
+>>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 
 run: run-ht
 
 clean:
+<<<<<<< HEAD
 	rm -f out
+=======
+	rm -f ht_program
+>>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 
 help:
 	@echo "Available commands:"

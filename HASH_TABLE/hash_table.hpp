@@ -4,10 +4,17 @@
 #include <ctype.h>
 #include "vector.hpp"
 
+<<<<<<< HEAD
 #define HT_SIZE 4219
 
 
 typedef unsigned long hash_t;
+=======
+#define HT_SIZE      1949
+
+
+typedef unsigned long hash_t;               // remove
+>>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 
 enum ht_err_t
 {
@@ -30,6 +37,7 @@ template <typename ht_elem_t>
 ht_err_t ht_free(ht_t<ht_elem_t> *ht);
 
 template <typename ht_elem_t>
+<<<<<<< HEAD
 ht_elem_t* ht_find(ht_t<ht_elem_t> *ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t));
 
 template <typename ht_elem_t>
@@ -40,6 +48,15 @@ ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_e
 
 // template <typename ht_elem_t>
 // void ht_dump(ht_t<ht_elem_t> *ht, void (*print_elem)(ht_elem_t));
+=======
+ht_elem_t* ht_find(ht_t<ht_elem_t> *ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t*));
+
+template <typename ht_elem_t>
+ht_err_t ht_insert(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t*));
+
+template <typename ht_elem_t>
+ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t*));
+>>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 
 #include "ht_func.hpp"
 
