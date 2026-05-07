@@ -1,70 +1,86 @@
-#include <string.h>
-#include <ctype.h>
 #include <stdint.h>
-#include <stddef.h>
+#include "hash_table.hpp"
 
 #define CRC32_POLYNOMIAL 0xEDB88320L
 
-typedef unsigned long hash_t;
+hash_t const_hash(ht_entry_t* /*bucket*/);
+hash_t first_char_hash(ht_entry_t *bucket);
+hash_t len_hash(ht_entry_t *bucket);
+hash_t checksum_hash(ht_entry_t *bucket);
+hash_t roll_hash(ht_entry_t *bucket);
+hash_t crc32_hash(ht_entry_t* bucket);
 
 
-hash_t const_hash(char* /*str*/)
-{
-    return 1;
+hash_t const_hash(ht_entry_t* /*bucket*/)
+{    
+    return 0;
 }
 
-hash_t first_char_hash(char *str)
+hash_t first_char_hash(ht_entry_t *bucket)
 {
-    return (hash_t)(str[0]);
+    return (hash_t)(bucket->word[0]);
 }
 
-hash_t len_hash(char *str)
+hash_t len_hash(ht_entry_t *bucket)
 {
-    return strlen(str);
+    return strlen(bucket->word);
 }
 
-hash_t checksum_hash(char *str)
+hash_t checksum_hash(ht_entry_t *bucket)
 {
     hash_t checksum = 0;
-    size_t len =  strlen(str);
-    for (size_t i = 0; i < len; i++)
+    for (size_t i = 0; bucket->word[i] != '\0'; i++)
     {
-        checksum += (hash_t)(str[i]);
+        checksum += (hash_t)(bucket->word[i]);
     }
 
     return checksum;
 }
 
-hash_t roll_hash(char *str)
+hash_t roll_hash(ht_entry_t *bucket)
 {
     hash_t new_hash = 0;
-    while (*str != '\0')
+    for (size_t i = 0; bucket->word[i] != '\0'; i++)
     {
-        new_hash = (new_hash << 5) - new_hash + (hash_t)(*str++);
+        new_hash = (new_hash << 5) - new_hash + (hash_t)(bucket->word[i]);
     }
 
     return new_hash;
 }
 
-hash_t crc32_hash(char* str)
+// hash_t crc32_hash(ht_entry_t *bucket)
+// {    
+//     char *word = bucket->word;
+//     const uint8_t *byte = (const uint8_t *)word;
+//     hash_t crc = 0xFFFFFFFF;
+
+//     for (size_t i = 0; word[i] != '\0'; i++)
+//     {
+//         crc ^= byte[i];
+//         for (int j = 0; j < 8; j++)
+//         {
+//             crc >>= 1;
+//             if (crc & 1)
+//             {
+//                 crc ^= CRC32_POLYNOMIAL;
+//             }
+//         }
+//     }
+
+//     return ~crc; 
+// }
+
+
+hash_t crc32_hash(ht_entry_t *bucket)
 {
-    if (str == NULL) return 0;
-    
+    const uint8_t *ptr = (const uint8_t *)bucket->word;    
     uint32_t crc = 0xFFFFFFFF;
-    
-    for (int i = 0; str[i] != '\0'; i++)
-    {
-        uint8_t byte = (uint8_t)str[i];
-        crc ^= byte;
-        
-        for (int bit = 0; bit < 8; bit++)
-        {
-            if (crc & 1)
-                crc = (crc >> 1) ^ CRC32_POLYNOMIAL;
-            else
-                crc = (crc >> 1);
-        }
-    }
-    
-    return (hash_t)(~crc);
+
+    crc = (uint32_t)_mm_crc32_u64(crc, *(const uint64_t*)(ptr + 0));
+    crc = (uint32_t)_mm_crc32_u64(crc, *(const uint64_t*)(ptr + 8));
+    crc = (uint32_t)_mm_crc32_u64(crc, *(const uint64_t*)(ptr + 16));
+    crc = (uint32_t)_mm_crc32_u64(crc, *(const uint64_t*)(ptr + 24));
+
+    bucket->hash = (hash_t)~crc;
+    return (hash_t)~crc;
 }

@@ -5,12 +5,12 @@
 
 
 template <typename ht_elem_t>
-ht_err_t ht_init(ht_t<ht_elem_t> *ht)
+ht_err_t ht_init(ht_t<ht_elem_t> * __restrict ht)
 {    
     for (int i = 0; i < HT_SIZE; i++)
     {
         ht[i].is_used = 0;
-        ht[i].vec     = NULL;
+        ht[i].vec     = nullptr;
     }
     
     return HT_SUCCESS;
@@ -18,17 +18,17 @@ ht_err_t ht_init(ht_t<ht_elem_t> *ht)
 
 
 template <typename ht_elem_t>
-ht_err_t ht_free(ht_t<ht_elem_t> *ht)
+ht_err_t ht_free(ht_t<ht_elem_t> * __restrict ht)
 {
-    if (ht == NULL) { return HT_SUCCESS; }
+    if (ht == nullptr) { return HT_SUCCESS; }
 
     for (int i = 0; i < HT_SIZE; i++)
     {
-        if (ht[i].vec != NULL)
+        if (ht[i].vec != nullptr)
         {
             vec_free(ht[i].vec);
             free(ht[i].vec);
-            ht[i].vec = NULL;
+            ht[i].vec = nullptr;
         }
         ht[i].is_used = 0;
     }
@@ -36,49 +36,105 @@ ht_err_t ht_free(ht_t<ht_elem_t> *ht)
     return HT_SUCCESS;
 }
 
-
 template <typename ht_elem_t>
-ht_elem_t* ht_find(ht_t<ht_elem_t> *ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t))
+inline ht_err_t ht_clear(ht_t<ht_elem_t> * __restrict ht)
 {
-    hash_t target_hash = hash_func(target) & (HT_SIZE - 1);
-
-    if (ht[target_hash].is_used == 0) { return NULL; }
-    
-    vec_t<ht_elem_t> *vec = ht[target_hash].vec;
-    if (vec == NULL) { return NULL; }
-
-    for (size_t i = 0; i < vec->size; i++)
+    for (int i = 0; i < HT_SIZE; i++)
     {
-        if (equal_func(vec->data[i], target))
-        {
-            return &vec->data[i];
-        }
+        ht[i].is_used = 0;
+        vec_free(ht[i].vec);
+        ht[i].vec     = nullptr;
     }
 
-    return NULL;
+    return HT_SUCCESS;
 }
 
 
-template <typename ht_elem_t>
-ht_err_t ht_insert(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t))
+template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+ht_elem_t* ht_find(ht_t<ht_elem_t> * __restrict ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t))
 {
-    hash_t item_hash = hash_func(item) & (HT_SIZE - 1);
+    // __asm__ volatile (
+    //     "prefetcht0 256(%[ptr])\n\t"
+    //     :
+    //     : [ptr] "r" (target->word)
+    //     : "memory"
+    // );
 
-    if (ht[item_hash].is_used == 0)
+    const hash_t target_index = hash_func(target) % (HT_SIZE - 1);    
+    if (!ht[target_index].is_used) { return nullptr; }
+    
+    vec_t<ht_elem_t> * __restrict vec = ht[target_index].vec;
+    if (vec == nullptr) { return nullptr; }
+
+    ht_elem_t* __restrict data_ptr = vec->data;
+    const size_t vec_size = vec->size;
+
+    for (size_t i = 0; i < vec_size; i++)
     {
-        vec_t<ht_elem_t> *new_vec = (vec_t<ht_elem_t>*)calloc(1, sizeof(vec_t<ht_elem_t>));
-        if (new_vec == NULL) { return HT_ERROR; }
+        if (equal_func(data_ptr[i], target))
+        {
+            return &data_ptr[i];
+        }
+    }
+
+    // __asm__ volatile (
+    //     "vmovdqu (%[t_word]), %%ymm0\n\t"
+        
+    //     "1:\n\t"
+    //     "cmpq %[t_hash], (%[ptr])\n\t"
+    //     "jne 3f\n\t"
+        
+    //     "movq 8(%[ptr]), %%rcx\n\t"
+    //     "vmovdqu (%%rcx), %%ymm1\n\t"
+    //     "vpcmpeqb %%ymm0, %%ymm1, %%ymm1\n\t"
+    //     "vpmovmskb %%ymm1, %%eax\n\t"
+    //     "cmpl $0xffffffff, %%eax\n\t"
+    //     "je 4f\n\t"
+        
+    //     "3:\n\t"
+    //     "addq $16, %[ptr]\n\t"
+    //     "decq %[count]\n\t"
+    //     "jnz 1b\n\t"
+        
+    //     "xorq %[res], %[res]\n\t"
+    //     "jmp 2f\n\t"
+
+    //     "4:\n\t"
+    //     "movq %[ptr], %[res]\n\t"
+
+    //     "2:\n\t"
+    //     "vzeroupper\n\t"
+    //     : [res] "=a" (found_ptr), [ptr] "+r" (data_ptr), [count] "+r" (items_left)
+    //     : [t_hash] "r" (target_hash), [t_word] "r" (target_word)
+    //     : "rcx", "ymm0", "ymm1", "cc", "memory"
+    // );
+
+
+    return nullptr;
+}
+
+
+template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+ht_err_t ht_insert(ht_t<ht_elem_t> * __restrict ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t))
+{
+    const hash_t item_index = hash_func(item) % (HT_SIZE - 1);
+    if (ht[item_index].is_used == 0)
+    {
+        vec_t<ht_elem_t> * __restrict new_vec = (vec_t<ht_elem_t>*)calloc_ex(1, sizeof(vec_t<ht_elem_t>));
+        if (new_vec == nullptr) { return HT_ERROR; }
 
         vec_init(new_vec, MIN_VEC_CAP);
-        ht[item_hash].vec     = new_vec;
-        ht[item_hash].is_used = 1;
+        ht[item_index].vec     = new_vec;
+        ht[item_index].is_used = 1;
     }
     else
     {
-        vec_t<ht_elem_t> *vec = ht[item_hash].vec;
-        for (size_t i = 0; i < vec->size; i++)
+        ht_elem_t* __restrict data_ptr = (ht[item_index].vec)->data;
+        const size_t vec_size = (ht[item_index].vec)->size;
+
+        for (size_t i = 0; i < vec_size; i++)
         {
-            if (equal_func(vec->data[i], item))
+            if (equal_func(data_ptr[i], item))
             {
                 return HT_SUCCESS;
             }
@@ -86,23 +142,26 @@ ht_err_t ht_insert(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_e
 
     }
 
-    vec_push_back(ht[item_hash].vec, item);
+    vec_push_back(ht[item_index].vec, item);
 
     return HT_SUCCESS;
 }
 
 
-template <typename ht_elem_t>
-ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t))
+template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+ht_err_t ht_remove(ht_t<ht_elem_t> * __restrict ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t))
 {
-    hash_t item_hash = hash_func(item) & (HT_SIZE - 1);
+    const hash_t item_index = hash_func(item) % (HT_SIZE - 1);
+
+    const ht_t<ht_elem_t> ht_bucket = ht[item_index];
+    if (ht_bucket.is_used == 0) { return HT_ERROR; }
     
-    if (ht[item_hash].is_used == 0) { return HT_ERROR; }
+    vec_t<ht_elem_t> * __restrict vec = ht_bucket.vec;
+    if (vec == nullptr) { return HT_ERROR; }
     
-    vec_t<ht_elem_t> *vec = ht[item_hash].vec;
-    if (vec == NULL) { return HT_ERROR; }
-    
-    for (size_t i = 0; i < vec->size; i++)
+    const size_t vec_size = vec->size;
+
+    for (size_t i = 0; i < vec_size; i++)
     {
         if (equal_func(vec->data[i], item))
         {
@@ -115,64 +174,4 @@ ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_e
 }
 
 
-<<<<<<< HEAD
-// template <typename ht_elem_t>
-// void ht_dump(ht_t<ht_elem_t> *ht, void (*print_elem)(ht_elem_t))
-// {
-//     if (ht == NULL)
-//     {
-//         printf("Hash table is NULL\n");
-//         return;
-//     }
-    
-//     printf("\n========== HASH TABLE DUMP ==========\n");
-//     printf("Table size: %d buckets\n", HT_SIZE);
-//     printf("======================================\n");
-    
-//     int total_elements = 0;
-//     int empty_buckets = 0;
-//     int used_buckets = 0;
-//     int max_chain_length = 0;
-    
-//     for (int i = 0; i < HT_SIZE; i++) 
-//     {
-//         if (ht[i].is_used == 0 || ht[i].vec == NULL)
-//         {
-//             empty_buckets++;
-//             continue;
-//         }
-        
-//         used_buckets++;
-//         int chain_length = (ht[i].vec != NULL) ? ht[i].vec->size : 0;
-//         total_elements += chain_length;
-        
-//         if (chain_length > max_chain_length)
-//         {
-//             max_chain_length = chain_length;
-//         }
-        
-//         printf("\nBucket %d (used=%d, size=%d):\n", i, ht[i].is_used, chain_length);
-        
-//         if (ht[i].vec != NULL && print_elem != NULL)
-//         {
-//             for (size_t j = 0; j < ht[i].vec->size; j++) 
-//             {
-//                 printf("  [%zu] ", j);
-//                 print_elem(ht[i].vec->data[j]);
-//             }
-//         }
-//     }
-    
-//     printf("\n========== SUMMARY ==========\n");
-//     printf("Total buckets:   %d\n", HT_SIZE);
-//     printf("Used buckets:    %d\n", used_buckets);
-//     printf("Empty buckets:   %d\n", empty_buckets);
-//     printf("Total elements:  %d\n", total_elements);
-//     printf("Max chain length: %d\n", max_chain_length);
-//     printf("Load factor:      %.2f\n", (float)total_elements / HT_SIZE);
-//     printf("=============================\n");
-// }
-
-=======
->>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 #endif

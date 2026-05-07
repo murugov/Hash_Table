@@ -5,8 +5,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 
-#define MIN_VEC_CAP 4
+#define ALIGNED
+#include "memory_utils.hpp"
+
+#define MIN_VEC_CAP 8
 
 enum vec_err_t
 {
@@ -25,43 +29,43 @@ struct vec_t
 
 
 template <typename vec_elem_t>
-vec_err_t vec_init(vec_t<vec_elem_t> *vec, size_t cap);
+vec_err_t vec_init(vec_t<vec_elem_t> * __restrict vec, const size_t cap);
 
 template <typename vec_elem_t>
-vec_err_t vec_free(vec_t<vec_elem_t> *vec);
+vec_err_t vec_free(vec_t<vec_elem_t> * __restrict vec);
 
 template <typename vec_elem_t>
-vec_err_t vec_push_back(vec_t<vec_elem_t> *vec, const vec_elem_t val);
+vec_err_t vec_push_back(vec_t<vec_elem_t> * __restrict vec, const vec_elem_t val);
 
 template <typename vec_elem_t>
-vec_err_t vec_push_front(vec_t<vec_elem_t> *vec, const vec_elem_t val);
+vec_err_t vec_push_front(vec_t<vec_elem_t> * __restrict vec, const vec_elem_t val);
 
 template <typename vec_elem_t>
-vec_err_t vec_pop_back(vec_t<vec_elem_t> *vec, vec_elem_t *val);
+vec_err_t vec_pop_back(vec_t<vec_elem_t> * __restrict vec, vec_elem_t * __restrict val);
 
 template <typename vec_elem_t>
-vec_err_t vec_pop_front(vec_t<vec_elem_t> *vec, vec_elem_t *val);
+vec_err_t vec_pop_front(vec_t<vec_elem_t> * __restrict vec, vec_elem_t * __restrict val);
 
 template <typename vec_elem_t>
-vec_err_t vec_clear(vec_t<vec_elem_t> *vec);
+vec_err_t vec_clear(vec_t<vec_elem_t> * __restrict vec);
 
 template <typename vec_elem_t>
-bool vec_empty(vec_t<vec_elem_t> *vec);
+bool vec_empty(vec_t<vec_elem_t> * __restrict vec);
 
 template <typename vec_elem_t>
-vec_err_t vec_grow(vec_t<vec_elem_t> *vec);
+vec_err_t vec_grow(vec_t<vec_elem_t> * __restrict vec);
 
 template <typename vec_elem_t>
-vec_err_t vec_reserve(vec_t<vec_elem_t> *vec, const unsigned int new_cap);
+vec_err_t vec_reserve(vec_t<vec_elem_t> * __restrict vec, const size_t new_cap);
 
 template <typename vec_elem_t>
-vec_err_t vec_shrink(vec_t<vec_elem_t> *vec);
+vec_err_t vec_shrink(vec_t<vec_elem_t> * __restrict vec);
 
 template <typename vec_elem_t>
-vec_err_t vec_truncate(vec_t<vec_elem_t> *vec, const unsigned int new_cap);
+vec_err_t vec_truncate(vec_t<vec_elem_t> * __restrict vec, const size_t new_cap);
 
 template <typename vec_elem_t>
-vec_err_t vec_remove(vec_t<vec_elem_t> *vec, size_t index);
+vec_err_t vec_remove(vec_t<vec_elem_t> * __restrict vec, const size_t index);
 
 
 #include "vec_func.hpp"

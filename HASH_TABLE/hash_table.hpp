@@ -2,19 +2,18 @@
 #define HASH_TABLE_HPP
 
 #include <ctype.h>
+#include <time.h>
+#include <x86intrin.h>
+#include <smmintrin.h>
 #include "vector.hpp"
 
-<<<<<<< HEAD
 #define HT_SIZE 4219
 
+#define HASH_FUNC crc32_hash
+#define EQUAL_FUNC equal_func_bucket
 
 typedef unsigned long hash_t;
-=======
-#define HT_SIZE      1949
 
-
-typedef unsigned long hash_t;               // remove
->>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
 
 enum ht_err_t
 {
@@ -25,38 +24,60 @@ enum ht_err_t
 template <typename ht_elem_t>
 struct ht_t
 {
-    int               is_used;
     vec_t<ht_elem_t>* vec;
+    size_t            is_used;
 };
 
+struct ht_entry_t
+{
+    hash_t hash;
+    char*  word;
+};
+
+// extern "C" hash_t crc32_hash_asm(ht_entry_t *bucket);
+
+
+// __attribute__ ((always_inline, pure))
+// inline bool equal_func_bucket(const ht_entry_t* bucket1, const ht_entry_t* bucket2)
+// {
+//     if (bucket1->hash != bucket2->hash) { return false; }
+//     return (strcmp(bucket1->word, bucket2->word) == 0);
+// }
+
+
+__attribute__ ((always_inline, pure))
+inline bool equal_func_bucket(const ht_entry_t* bucket1, const ht_entry_t* bucket2)
+{
+    if (bucket1->hash == bucket2->hash)
+    {
+        __m256i word1 = _mm256_load_si256((__m256i*)(bucket1->word));
+        __m256i word2 = _mm256_load_si256((__m256i*)(bucket2->word));
+        __m256i cmp = _mm256_cmpeq_epi8(word1, word2);
+
+        return ((uint32_t)_mm256_movemask_epi8(cmp) == 0xFFFFFFFF);
+    }
+
+    return false;
+}
+
 
 template <typename ht_elem_t>
-ht_err_t ht_init(ht_t<ht_elem_t> *ht);
+ht_err_t ht_init(ht_t<ht_elem_t> * __restrict ht);
 
 template <typename ht_elem_t>
-ht_err_t ht_free(ht_t<ht_elem_t> *ht);
+ht_err_t ht_free(ht_t<ht_elem_t> * __restrict ht);
 
 template <typename ht_elem_t>
-<<<<<<< HEAD
-ht_elem_t* ht_find(ht_t<ht_elem_t> *ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t));
+inline ht_err_t ht_clear(ht_t<ht_elem_t> * __restrict ht);
 
-template <typename ht_elem_t>
-ht_err_t ht_insert(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t));
+template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+ht_elem_t* ht_find(ht_t<ht_elem_t> * __restrict ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t));
 
-template <typename ht_elem_t>
-ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t));
+template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+ht_err_t ht_insert(ht_t<ht_elem_t> * __restrict ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t));
 
-// template <typename ht_elem_t>
-// void ht_dump(ht_t<ht_elem_t> *ht, void (*print_elem)(ht_elem_t));
-=======
-ht_elem_t* ht_find(ht_t<ht_elem_t> *ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t*));
-
-template <typename ht_elem_t>
-ht_err_t ht_insert(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t*));
-
-template <typename ht_elem_t>
-ht_err_t ht_remove(ht_t<ht_elem_t> *ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t), bool (*equal_func)(ht_elem_t, ht_elem_t*));
->>>>>>> ce9a91af20a404497839faef230d97ce2a710d85
+template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+ht_err_t ht_remove(ht_t<ht_elem_t> * __restrict ht, ht_elem_t item, hash_t (*hash_func)(ht_elem_t));
 
 #include "ht_func.hpp"
 
