@@ -48,6 +48,8 @@ hash_t roll_hash(ht_entry_t *bucket)
     return new_hash;
 }
 
+// TODO: rol
+
 // hash_t crc32_hash(ht_entry_t *bucket)
 // {    
 //     char *word = bucket->word;

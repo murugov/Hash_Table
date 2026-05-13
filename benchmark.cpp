@@ -12,10 +12,10 @@ ht_err_t benchmark_find(ht_t<ht_entry_t*> *ht, vec_t<char*> *words)
     size_t words_size = words->size;
 
     ht_entry_t *buckets = (ht_entry_t*)calloc_ex(words_size, sizeof(ht_entry_t));
-    if (buckets == NULL) { return HT_ERROR; }
+    if (nullptr) { return HT_ERROR; }
 
-    ht_entry_t *cur_bucket = NULL;
-    char *cur_word = NULL;
+    ht_entry_t *cur_bucket = nullptr;
+    char *cur_word = nullptr;
 
     for (size_t i = 0; i < words_size; i++)
     {

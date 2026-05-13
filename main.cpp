@@ -28,8 +28,8 @@ int main()
     fclose(src_file);
     
     ht_entry_t *buckets = (ht_entry_t*)calloc_ex(words->size, sizeof(ht_entry_t));
-    if (buckets == NULL) { return -1; }
-    
+    if (buckets == nullptr) { return -1; }
+        
     fill_ht(ht, words, buckets);
     vec_free<char*>(words);
 

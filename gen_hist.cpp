@@ -8,7 +8,7 @@ typedef hash_t (*hash_func_t)(ht_entry_t*);
 
 ht_err_t analyze_all_hashes(ht_t<ht_entry_t*> *ht, vec_t<char*> *words);
 ht_err_t rehash_ht(ht_t<ht_entry_t*> *ht, vec_t<char*> *words, ht_entry_t *buckets, hash_func_t hash_func);
-ht_err_t gen_hist(ht_t<ht_entry_t*> *ht, const char *name);
+ht_err_t gen_hist(ht_t<ht_entry_t*> *ht, char *name);
 
 hash_t const_hash(ht_entry_t *bucket);
 hash_t first_char_hash(ht_entry_t *bucket);
@@ -17,26 +17,28 @@ hash_t checksum_hash(ht_entry_t *bucket);
 hash_t roll_hash(ht_entry_t *bucket);
 hash_t crc32_hash(ht_entry_t* bucket); 
 
-struct hash_info
+struct ht_info
 {
     hash_func_t func;
-    const char* name;
+    char        *name;
 };
 
-hash_info functions[] = {
-    {const_hash,      "hist_const"},
-    {first_char_hash, "hist_first"},
-    {len_hash,        "hist_len"},
-    {checksum_hash,   "hist_checksum"},
-    {roll_hash,       "hist_roll"},
-    {crc32_hash,      "hist_crc32"}
-};
+#define FUNC_NAME(func) {func, #func}
 
+ht_info functions[] =
+{
+    FUNC_NAME(const_hash),
+    FUNC_NAME(first_char_hash),
+    FUNC_NAME(len_hash),       
+    FUNC_NAME(checksum_hash),
+    FUNC_NAME(roll_hash),
+    FUNC_NAME(crc32_hash)
+};
 
 ht_err_t analyze_all_hashes(ht_t<ht_entry_t*> *ht, vec_t<char*> *words)
 {
     size_t words_size = words->size;
-    const int number_hash_func = sizeof(functions) / sizeof(hash_info);
+    const int number_hash_func = sizeof(functions);
 
     for (int i = 0; i < number_hash_func; i++)
     {
@@ -76,7 +78,7 @@ ht_err_t rehash_ht(ht_t<ht_entry_t*> *ht, vec_t<char*> *words, ht_entry_t *bucke
 }
 
 
-ht_err_t gen_hist(ht_t<ht_entry_t*> *ht, const char *name)
+ht_err_t gen_hist(ht_t<ht_entry_t*> *ht, char *name)
 {
     int *arr = (int*)calloc(HT_SIZE, sizeof(int));
     if (arr == NULL) { return HT_ERROR; }
@@ -131,7 +133,7 @@ ht_err_t gen_hist(ht_t<ht_entry_t*> *ht, const char *name)
     }
 
     fprintf(gp_script, "set terminal pngcairo size 1200,600 enhanced font 'Arial,12'\n");
-    fprintf(gp_script, "set output 'reports/histograms/%s.png'\n", name);
+    fprintf(gp_script, "set output 'reports/histograms2/%s.png'\n", name);
     fprintf(gp_script, "set style fill solid 0.7\n");
     fprintf(gp_script, "set boxwidth 0.8\n");
     fprintf(gp_script, "set xlabel 'Номер ячейки'\n");

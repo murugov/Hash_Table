@@ -51,6 +51,7 @@ inline ht_err_t ht_clear(ht_t<ht_elem_t> * __restrict ht)
 
 
 template <typename ht_elem_t, bool (*equal_func)(const ht_entry_t*, const ht_entry_t*)>
+__attribute__ ((noinline, noclone))
 ht_elem_t* ht_find(ht_t<ht_elem_t> * __restrict ht, ht_elem_t target, hash_t (*hash_func)(ht_elem_t))
 {
     // __asm__ volatile (

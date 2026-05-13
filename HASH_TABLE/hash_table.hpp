@@ -37,24 +37,22 @@ struct ht_entry_t
 // extern "C" hash_t crc32_hash_asm(ht_entry_t *bucket);
 
 
-// __attribute__ ((always_inline, pure))
+// __attribute__ ((noinline, noclone, pure))
 // inline bool equal_func_bucket(const ht_entry_t* bucket1, const ht_entry_t* bucket2)
 // {
-//     if (bucket1->hash != bucket2->hash) { return false; }
-//     return (strcmp(bucket1->word, bucket2->word) == 0);
+//     return (bucket1->hash == bucket2->hash) && (strcmp(bucket1->word, bucket2->word) == 0);
 // }
 
-
-__attribute__ ((always_inline, pure))
+__attribute__ ((noinline, noclone, pure))
 inline bool equal_func_bucket(const ht_entry_t* bucket1, const ht_entry_t* bucket2)
 {
     if (bucket1->hash == bucket2->hash)
     {
         __m256i word1 = _mm256_load_si256((__m256i*)(bucket1->word));
         __m256i word2 = _mm256_load_si256((__m256i*)(bucket2->word));
-        __m256i cmp = _mm256_cmpeq_epi8(word1, word2);
+        __m256i res = _mm256_xor_si256(word1, word2);
 
-        return ((uint32_t)_mm256_movemask_epi8(cmp) == 0xFFFFFFFF);
+        return _mm256_testz_si256(res, res);
     }
 
     return false;
